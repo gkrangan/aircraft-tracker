@@ -6,33 +6,28 @@ dongle and demodulates ADS-B messages in Python (via [pyModeS](https://github.co
 `RtlReader` + [pyrtlsdr](https://github.com/roger-/pyrtlsdr)) — no dump1090/readsb
 binary required.
 
+## Screenshots
+
+| Console table | Live map (`--gui`) |
+| --- | --- |
+| ![Console table](screenshots/console-table.png) | ![Live map](screenshots/gui-map.png) |
+
 ## Requirements
 
 - Python 3.9+
 - A FlightAware ProStick (or other RTL2832U-based RTL-SDR dongle) plugged into a USB port
 - `librtlsdr` native driver: `brew install librtlsdr`
 
-## Installation
-
-```
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python scripts/patch_pyrtlsdr.py
-```
-
-The patch step is required: `pyrtlsdr` is unmaintained and unconditionally binds a
-few GPIO/dithering functions that Homebrew's mainline `librtlsdr` build doesn't
-export, which makes `import rtlsdr` (and opening the device) fail. The script
-patches the installed package in your venv to skip those bindings when unavailable.
-It's idempotent — safe to run again after reinstalling dependencies.
-
 ## Usage
+
+`./run.sh` wraps venv creation, dependency install, and the pyrtlsdr patch (see
+below) — first run sets everything up, every run after that just launches the
+tracker. No manual venv activation needed.
 
 Console table, using your receiver's coordinates for position decoding and distance:
 
 ```
-python adsb_tracker.py --lat 39.9612 --lon -82.9988
+./run.sh --lat 39.9612 --lon -82.9988
 ```
 
 Without `--lat`/`--lon`, positions still decode, but only once both an even and odd
@@ -41,14 +36,33 @@ CPR frame have arrived for an aircraft (slower to populate, no distance column).
 Live map in your browser:
 
 ```
-python adsb_tracker.py --lat 39.9612 --lon -82.9988 --gui
+./run.sh --lat 39.9612 --lon -82.9988 --gui
 ```
 
 Log snapshots to CSV every 5 seconds:
 
 ```
-python adsb_tracker.py --lat 39.9612 --lon -82.9988 --interval 5 --output flights.csv
+./run.sh --lat 39.9612 --lon -82.9988 --interval 5 --output flights.csv
 ```
+
+### Manual setup
+
+If you'd rather manage the venv yourself instead of using `run.sh`:
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python scripts/patch_pyrtlsdr.py
+python adsb_tracker.py --lat 39.9612 --lon -82.9988
+```
+
+The patch step is required: `pyrtlsdr` is unmaintained and unconditionally binds a
+few GPIO/dithering functions that Homebrew's mainline `librtlsdr` build doesn't
+export, which makes `import rtlsdr` (and opening the device) fail. The script
+patches the installed package in your venv to skip those bindings when unavailable.
+It's idempotent — safe to run again after reinstalling dependencies. `run.sh` runs
+it automatically, so you only need this if you're managing the venv by hand.
 
 ### Options
 
@@ -80,9 +94,9 @@ even/odd frame pairing otherwise).
 
 ## Troubleshooting
 
-- **"Could not open the RTL-SDR device"**: check the dongle is plugged in, run
-  `python scripts/patch_pyrtlsdr.py` if you haven't, and confirm `librtlsdr` is
-  installed (`brew list librtlsdr`).
+- **"Could not open the RTL-SDR device"**: check the dongle is plugged in, and
+  confirm `librtlsdr` is installed (`brew list librtlsdr`). If you're managing
+  the venv by hand instead of using `run.sh`, also run `python scripts/patch_pyrtlsdr.py`.
 - **No aircraft appear**: ADS-B needs line-of-sight-ish reception at 1090 MHz;
   try moving the antenna near a window or outdoors, and give it a minute — the
   first identification/position messages can take a few broadcast cycles to arrive.
