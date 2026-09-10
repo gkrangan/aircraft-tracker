@@ -6,6 +6,17 @@ dongle and demodulates ADS-B messages in Python (via [pyModeS](https://github.co
 `RtlReader` + [pyrtlsdr](https://github.com/roger-/pyrtlsdr)) — no dump1090/readsb
 binary required.
 
+## What is ADS-B?
+
+Automatic Dependent Surveillance–Broadcast: aircraft determine their own position
+via GPS and periodically broadcast it (along with identity, altitude, speed, etc.)
+on 1090 MHz, unencrypted, for anyone with an SDR to receive. It's what this project
+decodes.
+
+- [Wikipedia: Automatic Dependent Surveillance–Broadcast](https://en.wikipedia.org/wiki/Automatic_Dependent_Surveillance%E2%80%93Broadcast) — overview
+- [FAA: ADS-B FAQ](https://www.faa.gov/air_traffic/technology/adsb/faq) — the regulatory/aviation side (why it's mandated, ADS-B In vs Out)
+- [The 1090MHz Riddle](https://mode-s.org/1090mhz/) — a free, detailed technical book on decoding Mode S and ADS-B signals, by the author of pyModeS (the library this project decodes with)
+
 ## Hardware
 
 The whole rig: a MacBook, the FlightAware ProStick, and its antenna — no extra
