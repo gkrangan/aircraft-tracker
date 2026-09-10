@@ -6,6 +6,21 @@ dongle and demodulates ADS-B messages in Python (via [pyModeS](https://github.co
 `RtlReader` + [pyrtlsdr](https://github.com/roger-/pyrtlsdr)) — no dump1090/readsb
 binary required.
 
+## Hardware
+
+The whole rig: a MacBook, the FlightAware ProStick, and its antenna — no extra
+receiver box or Raspberry Pi needed.
+
+![Portable rig running outdoors](screenshots/hardware-portable-rig.jpg)
+
+The ProStick is a RTL2832U + R820T2 dongle, the same SDR chipset family as the
+generic RTL-SDR.com dongle it's shown next to below — that compatibility is
+what lets this project skip dump1090 and talk to the chipset directly.
+
+| Plugged into the MacBook | Same chipset family as RTL-SDR.com |
+| --- | --- |
+| ![ProStick connected via USB-C](screenshots/hardware-prostick-connected.jpg) | ![FlightAware ProStick next to an RTL-SDR.com dongle](screenshots/hardware-dongle-comparison.jpg) |
+
 ## Screenshots
 
 | Console table | Live map (`--gui`) |
