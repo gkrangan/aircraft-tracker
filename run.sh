@@ -19,4 +19,14 @@ if [ ! -f "$STAMP" ] || [ "$SCRIPT_DIR/requirements.txt" -nt "$STAMP" ]; then
     touch "$STAMP"
 fi
 
+# pyrtlsdr locates librtlsdr via ctypes, which does NOT search Homebrew's lib
+# directory by default (especially on Apple Silicon, where it's /opt/homebrew/lib
+# instead of /usr/local/lib). Without this, `import rtlsdr` fails with
+# "ImportError: Error loading librtlsdr" even when `brew install librtlsdr` is done.
+if command -v brew >/dev/null 2>&1; then
+    BREW_PREFIX="$(brew --prefix)"
+    export DYLD_LIBRARY_PATH="${BREW_PREFIX}/lib:${DYLD_LIBRARY_PATH:-}"
+    export DYLD_FALLBACK_LIBRARY_PATH="${BREW_PREFIX}/lib:${DYLD_FALLBACK_LIBRARY_PATH:-}"
+fi
+
 exec "$VENV_DIR/bin/python" "$SCRIPT_DIR/adsb_tracker.py" "$@"
