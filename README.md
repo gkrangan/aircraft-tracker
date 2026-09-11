@@ -123,6 +123,28 @@ even/odd frame pairing otherwise).
 - **"Could not open the RTL-SDR device"**: check the dongle is plugged in, and
   confirm `librtlsdr` is installed (`brew list librtlsdr`). If you're managing
   the venv by hand instead of using `run.sh`, also run `python scripts/patch_pyrtlsdr.py`.
+- **`ImportError: Error loading librtlsdr` even though `brew list librtlsdr` shows
+  it installed**: `pyrtlsdr` loads the driver via `ctypes`, which doesn't search
+  Homebrew's lib directory by default — especially on Apple Silicon, where it's
+  `/opt/homebrew/lib` instead of the `/usr/local/lib` older guides assume.
+  `run.sh` exports `DYLD_LIBRARY_PATH`/`DYLD_FALLBACK_LIBRARY_PATH` from
+  `brew --prefix` to handle this automatically. If you're managing the venv by
+  hand, export those yourself before running: `export DYLD_LIBRARY_PATH="$(brew --prefix)/lib:$DYLD_LIBRARY_PATH"`.
 - **No aircraft appear**: ADS-B needs line-of-sight-ish reception at 1090 MHz;
   try moving the antenna near a window or outdoors, and give it a minute — the
   first identification/position messages can take a few broadcast cycles to arrive.
+
+## Using this on multiple machines
+
+`.venv/` is git-ignored on purpose — it contains compiled, machine-specific
+binaries (numpy, pyModeS's C extension, pyrtlsdr's patched bindings) that don't
+transfer between machines or Python versions. **Don't let it sync via iCloud
+Drive, Dropbox, etc.** if this project lives in a synced folder (e.g.
+`~/Documents`) — a `.venv` copied mid-write from another Mac, or merged by a
+sync conflict, produces confusing hangs and import errors that look nothing
+like their real cause. The same goes for `.git/`: syncing it outside of git
+itself (i.e. via `push`/`pull`) risks corrupting the repo.
+
+If you switch machines (or hit weird errors after a sync), the fix is always
+the same: delete `.venv/` and run `./run.sh` again — it rebuilds a clean,
+machine-specific environment from `requirements.txt` in a few seconds.
